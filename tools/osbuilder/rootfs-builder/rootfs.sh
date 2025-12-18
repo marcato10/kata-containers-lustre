@@ -13,7 +13,7 @@ set -o errtrace
 script_name="${0##*/}"
 script_dir="$(dirname $(readlink -f $0))"
 AGENT_VERSION=${AGENT_VERSION:-}
-RUST_VERSION="null"
+RUST_VERSION="1.28.2"
 AGENT_BIN=${AGENT_BIN:-kata-agent}
 AGENT_INIT=${AGENT_INIT:-no}
 MEASURED_ROOTFS=${MEASURED_ROOTFS:-no}
@@ -303,14 +303,14 @@ docker_extra_args()
 	args+=" --cap-add MKNOD"
 
 	case "$1" in
-	gentoo)
+	(gentoo)
 		# Required to build glibc
 		args+=" --cap-add SYS_PTRACE"
 		# mount portage volume
 		args+=" -v ${gentoo_local_portage_dir}:/usr/portage/packages"
 		args+=" --volumes-from ${gentoo_portage_container}"
 		;;
-	debian | ubuntu | suse)
+	(debian | ubuntu | suse)
 		source /etc/os-release
 
 		case "$ID" in
@@ -667,17 +667,17 @@ EOF
 	mkdir -p "${ROOTFS_DIR}/etc"
 
 	case "${distro}" in
-		"ubuntu" | "debian")
+		("ubuntu" | "debian")
 			echo "I am ubuntu or debian"
 			chrony_conf_file="${ROOTFS_DIR}/etc/chrony/chrony.conf"
 			chrony_systemd_service="${ROOTFS_DIR}/lib/systemd/system/chrony.service"
 			;;
-		"ubuntu")
+		("ubuntu")
 			# Fix for #4932 - Boot hang at: "A start job is running for /dev/ttyS0"
 			mkdir -p "${ROOTFS_DIR}/etc/systemd/system/getty.target.wants"
 			ln -sf "/lib/systemd/system/getty@.service" "${ROOTFS_DIR}/etc/systemd/system/getty.target.wants/getty@ttyS0.service"
 			;;
-		*)
+		(*)
 			chrony_conf_file="${ROOTFS_DIR}/etc/chrony.conf"
 			chrony_systemd_service="${ROOTFS_DIR}/usr/lib/systemd/system/chronyd.service"
 			;;
